@@ -32,6 +32,9 @@ public class GameFlowManager : MonoBehaviour
 
     [SerializeField] float waitResultTime;
 
+    [SerializeField] float timeout;
+    [SerializeField] float lastQuizTime;
+
     [SerializeField] TargetBoardController infoBoardPrefab;
 
     IEnumerator<Quiz> quizEnumerator;
@@ -43,8 +46,9 @@ public class GameFlowManager : MonoBehaviour
     List<TargetBoardController> targetBoardList = new List<TargetBoardController>();
 
     TargetBoardController infoBoard;
+    TargetBoardController timeBoard;
 
-    //int score;
+    int score = 0;
 
     void PrepareQuiz(in Quiz q)
     {
@@ -75,7 +79,7 @@ public class GameFlowManager : MonoBehaviour
 
         infoBoard.SetText(q.exp);
         infoBoard.RegisterBangListener(OnWrongAnswer);
-
+        lastQuizTime = Time.time;
         lastAnswer = null;
     }
 
@@ -103,14 +107,15 @@ public class GameFlowManager : MonoBehaviour
     void ShowResult()
     {
         lastAnswer = null;
-        infoBoard.SetText("Good!!");
+        infoBoard.SetText($"Score {score}");
     }
 
-    void JudgeAnswer(bool ansCorrect)
+    void JudgeAnswer(bool ansCorrect, float v)
     {
         if (ansCorrect && correctSound)
         {
             sound.PlayOneShot(correctSound);
+            score += (int)v + 2;
         }
         else if (!ansCorrect && wrongSound)
         {
@@ -127,16 +132,39 @@ public class GameFlowManager : MonoBehaviour
         quizEnumerator = QuizFactory.MakeQuiz(additionTableRowIdx, substractionTableRowIdx, multiplicationTableRowIdx, numOfQuestion, randomization);
 
         StepQuiz();
+
+        timeBoard = Instantiate(infoBoardPrefab, gameObject.transform, false);
+        timeBoard.transform.localPosition = new Vector3(boardSpan.x * 5, boardSpan.y * (12), 0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (lastAnswer.HasValue && Time.time - lastAnswer.Value.t > waitResultTime)
+        float v = timeout - Time.time + lastQuizTime;
+
+        if (lastAnswer.HasValue)
         {
-            JudgeAnswer(lastAnswer.Value.correct);
-            StepQuiz();
+            if (Time.time - lastAnswer.Value.t > waitResultTime)
+            {
+                JudgeAnswer(lastAnswer.Value.correct, v);
+                StepQuiz();
+            }
         }
+        else if (targetBoardList.Count != 0)
+        {
+            if (v <= 0)
+            {
+                infoBoard.Bang();
+                
+            }
+            else
+            {
+                timeBoard.SetText($"{(int)v}");
+            }
+        }
+
+
+
     }
 
     void OnCurrectAnswer()

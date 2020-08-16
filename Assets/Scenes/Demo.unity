@@ -876,12 +876,14 @@ MonoBehaviour:
   boardSpan: {x: 1.1, y: 1.1}
   wrongSound: {fileID: 8300000, guid: 927b60584369b88419df3920af08d168, type: 3}
   correctSound: {fileID: 8300000, guid: 222100ce9896f7a4782a8a4f24b4a25d, type: 3}
-  additionTableRowIdx: 03000000
-  substractionTableRowIdx: 
+  additionTableRowIdx: 
+  substractionTableRowIdx: 08000000090000000700000006000000
   multiplicationTableRowIdx: 
   randomization: 1
-  numOfQuestion: 10
+  numOfQuestion: 20
   waitResultTime: 3
+  timeout: 10
+  lastQuizTime: 0
   infoBoardPrefab: {fileID: 7662490441903123500, guid: 4961e04811a347745bb785774348d0b5,
     type: 3}
 --- !u!4 &673392575
